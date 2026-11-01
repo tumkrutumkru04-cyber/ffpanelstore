@@ -140,10 +140,13 @@ function platformBadge(product) {
   return `<span class="product-platform-badge" role="img" aria-label="${label} platform" title="${label}"><img class="hx-platform-mark platform-mark-${mark.startsWith('apple') ? 'apple' : mark.startsWith('kitsune') ? 'kitsune' : 'android'}" src="/assets/brands/${mark}" alt="" aria-hidden="true"></span>`;
 }
 function renderProducts() {
-  const query = $('search').value.trim().toLowerCase();
-  const searchClear=$('searchClear');if(searchClear)searchClear.hidden=!query;
+  const input = $('search');
+  if (!input) return;
+  const query = input.value.trim().toLowerCase();
+  const searchClear = $('searchClear');
+  if (searchClear) searchClear.hidden = !query;
   const shown = products.filter(p => {
-    const searchable = [p.name,p.category,p.platform,p.access_mode,p.description,...(p.features||[])].join(' ').toLowerCase();
+    const searchable = [p.name, p.category, p.platform, p.access_mode, p.description, ...(p.features || [])].join(' ').toLowerCase();
     const access = String(p.access_mode || 'all').toLowerCase();
     const isIos = [p.platform, p.category, p.name].some(value => /ios/i.test(String(value || '')));
     const modeMatches = selectedStoreFilter === 'all'
@@ -153,18 +156,31 @@ function renderProducts() {
     return searchable.includes(query) && modeMatches;
   });
   $('productCount').textContent = String(shown.length);
-  if (!shown.length) { $('catalogGrid').innerHTML = '<div class="empty">No products match your search and filters.</div>'; return; }
+  if (!shown.length) {
+    $('catalogGrid').innerHTML = '<div class="empty">No products match your search and filters.</div>';
+    return;
+  }
   $('catalogGrid').innerHTML = shown.map(p => {
-    const initials = escapeHtml(p.name.split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase());
-    const firstDuration = (p.durations||[])[0];
-    const firstPrice = firstDuration ? displayPrice(p,firstDuration) : 'Price unavailable';
-    const sold = Number(p.sold_count||0);
-    const detailUrl=`/product/${encodeURIComponent(p.key)}`;
-    const maintenance=Boolean(p.maintenance);
-    const platform=platformBadge(p);
-    const firstStock=firstDuration!==undefined&&p.stock&&p.stock[firstDuration]!==undefined?numberValue(p.stock[firstDuration]):null;
-    const outOfStock=firstStock!==null&&firstStock<=0;
-    return `<article class="product reference-product"><button class="product-image product-detail-trigger" type="button" data-detail-open="${escapeHtml(p.key)}" aria-label="View ${escapeHtml(p.name)} details" draggable="false"><img src="${escapeHtml(p.image_url||'')}" alt="${escapeHtml(p.name)}" loading="lazy" draggable="false" onload="if(this.naturalWidth)this.nextElementSibling.style.display='none'" onerror="this.remove()"><div class="fallback" aria-hidden="true">${initials}</div></button><div class="product-body"><button class="reference-product-title" type="button" data-detail-open="${escapeHtml(p.key)}" title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</button>${platform}<div class="reference-product-meta">${sold>0?`${sold.toLocaleString()} sold`:'Digital access'}</div><span class="reference-price">${escapeHtml(firstPrice)}</span><div class="reference-card-actions"><button class="button buy-button ${maintenance?'is-maintenance':''}" type="button" aria-label="${maintenance?'Product under maintenance':outOfStock?'Product out of stock':'Buy now'}" data-detail-open="${escapeHtml(p.key)}" ${maintenance||outOfStock?'disabled':''}>${maintenance?'<svg class="hx-icon" aria-hidden="true"><use href="/assets/icons.svg#wrench"></use></svg><span>MAINT.</span>':outOfStock?'SOLD OUT':'<svg class="hx-icon" aria-hidden="true"><use href="/assets/icons.svg#cart"></use></svg><span>BUY</span>'}</button></div></div></article>`;
+    const name = String(p.name || 'Product');
+    const initials = escapeHtml(name.split(/\s+/).slice(0, 2).map(x => x[0]).join('').toUpperCase());
+    const firstDuration = (p.durations || [])[0];
+    const firstPrice = firstDuration ? displayPrice(p, firstDuration) : 'Price unavailable';
+    const sold = Number(p.sold_count || 0);
+    const maintenance = Boolean(p.maintenance);
+    const platform = platformBadge(p);
+    const firstStock = firstDuration !== undefined && p.stock && p.stock[firstDuration] !== undefined ? numberValue(p.stock[firstDuration]) : null;
+    const outOfStock = firstStock !== null && firstStock <= 0;
+    const offlineOverlay = maintenance ? `<div class="ref-offline-overlay" role="status" aria-label="Offline. Under Maintenance. Back soon.">
+      <span class="ref-offline-icon-wrap" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3H9z"></path></svg></span>
+      <span class="ref-offline-pill"><span class="ref-pulse-dot"></span>Offline</span>
+      <p class="ref-offline-headline">Under <span class="ref-offline-highlight">Maintenance</span></p>
+      <p class="ref-offline-sub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" aria-hidden="true"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" stroke-linecap="round" stroke-linejoin="round"></path></svg>Back soon</p>
+    </div>` : '';
+    return `<article class="product reference-product${maintenance ? ' is-offline' : ''}">
+      <button class="product-image product-detail-trigger" type="button" data-detail-open="${escapeHtml(p.key)}" aria-label="View ${escapeHtml(name)} details" draggable="false"><img src="${escapeHtml(p.image_url || '')}" alt="${escapeHtml(name)}" loading="lazy" draggable="false" onload="if(this.naturalWidth)this.nextElementSibling.style.display='none'" onerror="this.remove()"><div class="fallback" aria-hidden="true">${initials}</div></button>
+      <div class="product-body"><button class="reference-product-title" type="button" data-detail-open="${escapeHtml(p.key)}" title="${escapeHtml(name)}">${escapeHtml(name)}</button>${platform}<div class="reference-product-meta">${sold > 0 ? `${sold.toLocaleString()} sold` : 'Digital access'}</div><span class="reference-price">${escapeHtml(firstPrice)}</span><div class="reference-card-actions"><button class="button buy-button ${maintenance ? 'is-maintenance' : ''}" type="button" aria-label="${maintenance ? 'Product under maintenance' : outOfStock ? 'Product out of stock' : 'Buy now'}" data-detail-open="${escapeHtml(p.key)}" ${maintenance || outOfStock ? 'disabled' : ''}>${maintenance ? '<svg class="hx-icon" aria-hidden="true"><use href="/assets/icons.svg#wrench"></use></svg><span>MAINT.</span>' : outOfStock ? 'SOLD OUT' : '<svg class="hx-icon" aria-hidden="true"><use href="/assets/icons.svg#cart"></use></svg><span>BUY</span>'}</button></div></div>
+      ${offlineOverlay}
+    </article>`;
   }).join('');
 }
 function openProduct(key) {
@@ -173,15 +189,35 @@ function openProduct(key) {
 }
 async function loadHomepage() {
   try {
-    const data=await request('/api/store/config');homeConfig=data;
+    const data = await request('/api/store/config');
+    homeConfig = data;
     if (!pageActive) return;
-    const shopName=String(data.shop_name||'HEX CHEATS SHOP');
-    if($('shopName')?.firstChild)$('shopName').firstChild.textContent=shopName+' ';
-    $('footerShopName').textContent=shopName;
-    $('heroTitle').textContent=data.hero_title||'Browse the latest products';
-    $('heroSubtitle').textContent=data.hero_subtitle||'';
-    $('announcement').textContent=data.announcement||'';
-    document.title=`${shopName} | Digital products`;
+    const shopName = String(data.shop_name || 'HEX CHEATS SHOP');
+    if ($('shopName')) $('shopName').textContent = shopName;
+    if ($('footerShopName')) $('footerShopName').textContent = shopName;
+    document.title = `${shopName} | Digital products`;
+
+    const defaultAnnouncement = 'Welcome to HEX CHEATS SHOP — secure checkout and digital delivery.';
+    const announcementText = String(data.announcement || '').trim();
+    const announcement = $('announcement');
+    if (announcement) {
+      const showAnnouncement = Boolean(announcementText && announcementText !== defaultAnnouncement);
+      announcement.textContent = showAnnouncement ? announcementText : '';
+      announcement.hidden = !showAnnouncement;
+    }
+
+    const defaultHeroTitle = 'Your next favorite access starts here.';
+    const defaultHeroSubtitle = 'Browse iOS, Android and PC products. Pick a duration, review the price, and keep your order key in your profile.';
+    const rawHeroTitle = String(data.hero_title || '').trim();
+    const rawHeroSubtitle = String(data.hero_subtitle || '').trim();
+    const heroTitle = rawHeroTitle === defaultHeroTitle ? '' : rawHeroTitle;
+    const heroSubtitle = rawHeroSubtitle === defaultHeroSubtitle ? '' : rawHeroSubtitle;
+    const hasCustomHero = Boolean(heroTitle || heroSubtitle);
+    if ($('heroTitle')) $('heroTitle').textContent = heroTitle;
+    if ($('heroSubtitle')) $('heroSubtitle').textContent = heroSubtitle;
+    const heroIntro = $('heroIntro');
+    if (heroIntro) heroIntro.hidden = !hasCustomHero;
+
     const binanceReady = Boolean(data.binance?.available);
     const binanceTopupButton = $('binanceTopupButton');
     const binanceAvailability = $('binanceAvailability');
@@ -191,28 +227,72 @@ async function loadHomepage() {
         ? 'Binance Pay is available. Payments require admin verification before INR wallet credit.'
         : 'Binance Pay will appear here after the shop administrator uploads a Binance QR image.';
     }
-    const fallback=[
-      [data.hero_title||'Featured line-up',data.hero_subtitle||'Explore products for your platform and choose the access period that works for you.'],
-      ['Choose your access','Compare product details, demo videos, download links, and durations before checkout.'],
-      ['Secure checkout','Track payments, wallet balance, and delivery keys together in your shop profile.']
-    ];
-    const banners=(data.banners||[]).slice(0,3);
-    while(banners.length<3)banners.push({slot:banners.length+1,title:'',subtitle:'',cta_label:'Browse products',cta_url:'#catalog',image_url:''});
-    $('heroSlides').innerHTML=banners.map((b,i)=>{
-      const title=b.title||fallback[i][0],subtitle=b.subtitle||fallback[i][1],url=b.cta_url||'#catalog';
-      const external=String(url).startsWith('https://');
-      return `<article class="slide ${i===0?'active':''}">${b.image_url?`<img class="slide-image" src="${escapeHtml(b.image_url)}" alt="" onerror="this.remove()">`:''}<div class="slide-shade"></div><div class="slide-content"><div class="slide-kicker">HEX CHEATS SHOP · PROMOTION ${i+1}</div><h2>${escapeHtml(title)}</h2><p>${escapeHtml(subtitle)}</p><a class="button" href="${escapeHtml(url)}" ${external?'target="_blank" rel="noopener noreferrer"':''}>${escapeHtml(b.cta_label||'Browse products')}</a></div></article>`;
+
+    const sourceBanners = Array.isArray(data.banners) ? data.banners.slice(0, 3) : [];
+    const banners = sourceBanners.filter(b => {
+      if (!b || typeof b !== 'object') return false;
+      const image = String(b.image_url || '').trim();
+      const title = String(b.title || '').trim();
+      const subtitle = String(b.subtitle || '').trim();
+      const label = String(b.cta_label || '').trim();
+      const url = String(b.cta_url || '').trim();
+      return Boolean(image || title || subtitle || (label && label !== 'Browse products') || (url && url !== '#catalog'));
+    });
+    if (!banners.length && hasCustomHero) {
+      banners.push({ title: heroTitle, subtitle: heroSubtitle, cta_label: '', cta_url: '', image_url: '' });
+    }
+
+    $('heroSlides').innerHTML = banners.map((banner, index) => {
+      const title = String(banner.title || '').trim();
+      const subtitle = String(banner.subtitle || '').trim();
+      const image = String(banner.image_url || '').trim();
+      const ctaLabel = String(banner.cta_label || '').trim();
+      const showCta = Boolean(ctaLabel && ctaLabel !== 'Browse products');
+      const url = String(banner.cta_url || '#catalog').trim() || '#catalog';
+      const external = /^https:\/\//i.test(url);
+      const imageMarkup = image ? `<img class="slide-image" src="${escapeHtml(image)}" alt="" onerror="this.remove()">` : '';
+      const contentMarkup = title || subtitle || showCta
+        ? `<div class="slide-content">${title ? `<h2>${escapeHtml(title)}</h2>` : ''}${subtitle ? `<p>${escapeHtml(subtitle)}</p>` : ''}${showCta ? `<a class="button" href="${escapeHtml(url)}" ${external ? 'target="_blank" rel="noopener noreferrer"' : ''}>${escapeHtml(ctaLabel)}</a>` : ''}</div>`
+        : '';
+      return `<article class="slide ${index === 0 ? 'active' : ''}" aria-hidden="${index !== 0}">${imageMarkup}<div class="slide-shade"></div>${contentMarkup}</article>`;
     }).join('');
-    $('heroDots').innerHTML=banners.map((_,i)=>`<button class="dot ${i===0?'active':''}" type="button" aria-label="Show banner ${i+1}" data-slide="${i}"></button>`).join('');
-    goSlide(0);clearInterval(carouselTimer);carouselTimer=setInterval(()=>goSlide((activeSlide+1)%3),6500);
-  } catch { console.warn('Homepage settings could not be loaded.'); }
+    $('heroDots').innerHTML = banners.length > 1
+      ? banners.map((_, index) => `<button class="dot ${index === 0 ? 'active' : ''}" type="button" aria-label="Show banner ${index + 1}" data-slide="${index}"></button>`).join('')
+      : '';
+    const carousel = document.querySelector('.carousel');
+    if (carousel) carousel.hidden = banners.length === 0;
+    document.querySelectorAll('.carousel-arrow').forEach(button => { button.hidden = banners.length < 2; });
+    const dots = $('heroDots');
+    if (dots) dots.hidden = banners.length < 2;
+    clearInterval(carouselTimer);
+    if (banners.length) goSlide(0);
+    restartCarousel();
+  } catch {
+    console.warn('Homepage settings could not be loaded.');
+  }
 }
 function goSlide(index) {
-  const track=$('heroSlides'),slides=[...document.querySelectorAll('#heroSlides .slide')],dots=[...document.querySelectorAll('#heroDots .dot')];
-  if(!slides.length)return;activeSlide=(index+slides.length)%slides.length;
-  if(track)track.style.transform=`translate3d(${-activeSlide*100}%,0,0)`;
-  slides.forEach((el,i)=>{const active=i===activeSlide;el.classList.toggle('active',active);el.setAttribute('aria-hidden',String(!active))});
-  dots.forEach((el,i)=>{const active=i===activeSlide;el.classList.toggle('active',active);el.setAttribute('aria-pressed',String(active))});
+  const track = $('heroSlides');
+  const slides = [...document.querySelectorAll('#heroSlides .slide')];
+  const dots = [...document.querySelectorAll('#heroDots .dot')];
+  if (!slides.length) return;
+  activeSlide = (index + slides.length) % slides.length;
+  if (track) track.style.transform = `translate3d(${-activeSlide * 100}%,0,0)`;
+  slides.forEach((element, i) => {
+    const active = i === activeSlide;
+    element.classList.toggle('active', active);
+    element.setAttribute('aria-hidden', String(!active));
+  });
+  dots.forEach((element, i) => {
+    const active = i === activeSlide;
+    element.classList.toggle('active', active);
+    element.setAttribute('aria-pressed', String(active));
+  });
+}
+function restartCarousel() {
+  clearInterval(carouselTimer);
+  const count = document.querySelectorAll('#heroSlides .slide').length;
+  if (count > 1) carouselTimer = setInterval(() => goSlide(activeSlide + 1), 6500);
 }
 async function loadProducts() {
   try {
@@ -612,9 +692,6 @@ function setCurrency(value) {
   $('currencySelect').value = currency;
   renderProducts();
   if(detailProduct && !$('productModal').classList.contains('hidden'))openProduct(detailProduct.key);
-  $('currencyNote').textContent = currency === 'USD'
-    ? 'USD prices are shown only where set by the shop. Wallet balances and all payments settle in INR.'
-    : 'Wallet balances and all payments settle in INR.';
 }
 
 $('loginTab').addEventListener('click', () => setAuthMode('login'));
@@ -623,12 +700,12 @@ $('authForm').addEventListener('submit', authSubmit);
 bindSearchControls();
 $('search').addEventListener('input', renderProducts);
 $('currencySelect').addEventListener('change', event => setCurrency(event.target.value));
-$('heroPrev').addEventListener('click',()=>{clearInterval(carouselTimer);goSlide(activeSlide-1);carouselTimer=setInterval(()=>goSlide((activeSlide+1)%3),6500)});
-$('heroNext').addEventListener('click',()=>{clearInterval(carouselTimer);goSlide(activeSlide+1);carouselTimer=setInterval(()=>goSlide((activeSlide+1)%3),6500)});
+$('heroPrev').addEventListener('click',()=>{goSlide(activeSlide-1);restartCarousel()});
+$('heroNext').addEventListener('click',()=>{goSlide(activeSlide+1);restartCarousel()});
 const onStoreClick=event=>{
   const filter=event.target.closest('[data-store-filter]');
   if(filter){selectedStoreFilter=filter.dataset.storeFilter;filter.classList.remove('tab-tap');void filter.offsetWidth;filter.classList.add('tab-tap');$('catalogGrid').classList.add('is-switching');renderFilterGroups();renderProducts();setTimeout(()=>$('catalogGrid')?.classList.remove('is-switching'),420);return}
-  const dot=event.target.closest('[data-slide]');if(dot){clearInterval(carouselTimer);goSlide(Number(dot.dataset.slide));carouselTimer=setInterval(()=>goSlide((activeSlide+1)%3),6500);return}
+  const dot=event.target.closest('[data-slide]');if(dot){goSlide(Number(dot.dataset.slide));restartCarousel();return}
   const card=event.target.closest('[data-open-product]');if(card)openProduct(card.dataset.openProduct);
   const direct=event.target.closest('[data-detail-open]');if(direct){event.preventDefault();openProduct(direct.dataset.detailOpen);return}
 };

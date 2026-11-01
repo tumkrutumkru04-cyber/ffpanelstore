@@ -1,6 +1,6 @@
 <header class="top reference-header">
   <a class="home-icon-btn" href="/" aria-label="Home"><svg class="hx-icon" aria-hidden="true"><use href="/assets/icons.svg#home"></use></svg></a>
-  <a class="brand" href="/" aria-label="HEX CHEATS SHOP home"><span class="site-name-stylish" id="shopName">HEX CHEATS SHOP <small>OFFICIAL DIGITAL STORE</small></span></a>
+  <a class="brand" href="/" aria-label="HEX CHEATS SHOP home"><span class="site-name-stylish" id="shopName">HEX CHEATS SHOP</span></a>
   <nav class="nav" aria-label="Shop navigation">
     <label class="page-currency" aria-label="Display currency">
       <select id="currencySelect" data-page-currency>
@@ -8,7 +8,9 @@
         <option value="USD">USD</option>
       </select>
     </label>
-    <button class="menu-trigger" type="button" id="shopMenuToggle" aria-expanded="false" aria-controls="shopQuickMenu" aria-label="Open shop navigation"><svg class="hx-icon" aria-hidden="true"><use href="/assets/icons.svg#menu"></use></svg></button>
+    <a class="auth-btn-login" href="/login">LOGIN</a>
+    <a class="auth-btn-register" href="/register">REGISTER</a>
+    <button class="menu-trigger" type="button" id="shopMenuToggle" aria-expanded="false" aria-controls="shopQuickMenu" aria-label="More" title="More"><svg class="hx-icon" aria-hidden="true"><use href="/assets/icons.svg#menu"></use></svg></button>
   </nav>
   <div class="shop-menu-backdrop hidden" id="shopMenuBackdrop" aria-hidden="true"></div>
   <aside class="shop-quick-menu hidden" id="shopQuickMenu" aria-label="Account menu" aria-hidden="true">

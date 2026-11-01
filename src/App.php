@@ -456,9 +456,9 @@ final class App
         require $file;
         $html = (string) ob_get_clean();
         $headAssets = '<script>(function(){try{var t=localStorage.getItem("hex_shop_theme");document.documentElement.dataset.theme=(t==="dark"||t==="light")?t:"light"}catch(e){document.documentElement.dataset.theme="light"}})();</script><link rel="stylesheet" href="/assets/css/theme.css?v=16">';
-        $headAssets .= '<link rel="stylesheet" href="/assets/css/redesign.css?v=2">';
-        $headAssets .= '<link rel="stylesheet" href="/assets/css/reference-ui.css?v=4">';
-        $bodyAssets = '<script src="/assets/js/theme.js?v=10" defer></script>';
+        $headAssets .= '<link rel="stylesheet" href="/assets/css/redesign.css?v=3">';
+        $headAssets .= '<link rel="stylesheet" href="/assets/css/reference-ui.css?v=6">';
+        $bodyAssets = '<script src="/assets/js/theme.js?v=12" defer></script>';
         if (stripos($html, '</head>') !== false) {
             $html = preg_replace('/<\/head>/i', $headAssets . '</head>', $html, 1) ?? $html;
         }

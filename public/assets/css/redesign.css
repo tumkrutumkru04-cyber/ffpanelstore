@@ -84,7 +84,7 @@ body:has(#catalog) .hero-intro .eyebrow{display:inline-flex;align-items:center;g
 body:has(#catalog) .hero-intro .eyebrow:before{width:7px;height:7px;border-radius:50%;background:var(--hx-green);box-shadow:0 0 0 4px var(--rd-glow);content:""}
 body:has(#catalog) .hero-intro h1{max-width:750px;margin:12px 0 9px;color:var(--hx-ink);font-size:clamp(32px,6vw,60px);font-weight:950;letter-spacing:-.065em;line-height:.98}
 body:has(#catalog) .hero-intro p{max-width:640px;color:var(--hx-muted);font-size:15px;line-height:1.7}
-body:has(#catalog) .carousel{position:relative;overflow:hidden;margin:12px 0 18px;border:1px solid #1c5d3b;border-radius:24px;background:#07110c url('/assets/images/hex-hero-ambient.webp') center/cover no-repeat;box-shadow:0 22px 54px rgba(4,39,20,.19)}
+body:has(#catalog) .carousel{position:relative;overflow:hidden;margin:12px 0 18px;border:1px solid #1c5d3b;border-radius:24px;background:#0a0a14;box-shadow:0 22px 54px rgba(4,39,20,.19)}
 body:has(#catalog) .slides{min-height:clamp(270px,35vw,390px)}
 body:has(#catalog) .slide{padding:clamp(28px,5vw,62px);background:linear-gradient(90deg,rgba(4,17,10,.94) 0%,rgba(4,17,10,.76) 52%,rgba(4,17,10,.24) 100%);transition:opacity .35s ease,visibility .35s ease}
 body:has(#catalog) .slide-image{z-index:0;object-fit:cover;opacity:.78}

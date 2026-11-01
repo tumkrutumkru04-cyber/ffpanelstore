@@ -1,5 +1,5 @@
 <?php $pageTitle='My orders | HEX CHEATS SHOP';$activePage='orders';require __DIR__.'/_head.php'; ?>
-<section class="hx-page-heading"><p class="hx-eyebrow">ORDER HISTORY</p><h1>My orders</h1><p class="hx-muted">Payment status and fulfillment updates for your purchases.</p></section>
+<section class="hx-page-heading"><h1>My Orders</h1></section>
 <section id="proofReceipt" class="hx-proof-receipt" <?= (($_GET['proof'] ?? '') === 'received') ? '' : 'hidden' ?> role="status" aria-live="polite"><span class="hx-proof-receipt-mark"><svg class="hx-icon" aria-hidden="true"><use href="/assets/icons.svg#check"></use></svg></span><div><strong>Payment proof uploaded successfully</strong><small>Your payment is awaiting admin verification. Order and payment status are listed below.</small></div></section>
 <section id="ordersList" class="hx-list"><div class="hx-loading">Loading orders…</div></section>
 <script>
@@ -8,6 +8,9 @@
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
   const date = value => value ? new Date(Number(value) * 1000).toLocaleString() : '—';
   const money = value => '₹' + Number(value || 0).toFixed(2);
+  const safeDownloadUrl = value => {
+    try { const url = new URL(String(value || ''), location.origin); return url.protocol === 'https:' || url.origin === location.origin ? url.href : ''; } catch { return ''; }
+  };
   let csrf = '';
   async function api(path, options = {}) {
     const headers = { ...(options.headers || {}) };
@@ -22,9 +25,10 @@
   function renderOrder(order, products) {
     const pendingUpi = order.payment_method === 'upi' && order.status === 'pending';
     const product = products.find(item => String(item.name || '') === String(order.product_name || ''));
-    const download = order.status === 'complete' && product?.download_url
-      ? `<a class="hx-button hx-secondary" href="${esc(product.download_url)}" target="_blank" rel="noopener noreferrer"><svg class="hx-icon" aria-hidden="true"><use href="/assets/icons.svg#download"></use></svg><span>SETUP + APK</span></a>` : '';
-    const payment = pendingUpi ? `<div class="hx-payment-actions">${order.payment_url ? `<a class="hx-button hx-secondary" href="${esc(order.payment_url)}" target="_blank" rel="noopener noreferrer">Continue payment</a>` : ''}<button class="hx-button hx-secondary" type="button" data-check-order="${esc(order.order_id)}">Check payment status</button></div>` : '';
+    const downloadUrl = order.status === 'complete' ? safeDownloadUrl(product?.download_url) : '';
+    const download = downloadUrl
+      ? `<a class="hx-button hx-secondary" href="${esc(downloadUrl)}" target="_blank" rel="noopener noreferrer"><svg class="hx-icon" aria-hidden="true"><use href="/assets/icons.svg#download"></use></svg><span>SETUP + APK</span></a>` : '';
+    const payment = pendingUpi ? `<div class="hx-payment-actions">${order.payment_url ? `<a class="hx-button hx-secondary" href="${esc(order.payment_url)}" target="_blank" rel="noopener noreferrer">Continue payment</a>` : ''}<button class="hx-button hx-secondary" type="button" data-check-order="${esc(order.order_id)}">Check payment status</button><small class="hx-muted" data-payment-error role="alert" aria-live="polite"></small></div>` : '';
     const transaction = order.transaction_id && order.transaction_id !== 'WALLET' ? `<small>Transaction ID: ${esc(order.transaction_id)}</small>` : '';
     return `<article class="hx-panel hx-order"><div><b>${esc(order.product_name || 'Product')}</b><div class="hx-muted">${esc(order.duration || '')} · ${esc(date(order.created_at))}</div></div><span class="hx-status">${esc(order.status || 'pending')}</span><b>${money(order.amount)}</b><small>Order ${esc(order.order_id || '')}</small>${transaction}${order.delivery_key ? `<div class="hx-key">${esc(order.delivery_key)}</div>` : ''}<div class="hx-order-actions">${payment}${download}</div></article>`;
   }
@@ -52,11 +56,15 @@
       ].sort((a, b) => b.time - a.time);
       box.innerHTML = combined.length ? combined.map(item => item.html).join('') : '<section class="hx-panel">No orders yet. <a href="/#catalog">Browse products</a></section>';
       box.querySelectorAll('[data-check-order]').forEach(button => button.addEventListener('click', async () => {
-        const orderId = button.dataset.checkOrder; button.disabled = true; button.textContent = 'Checking…';
+        const orderId = button.dataset.checkOrder; button.disabled = true; button.textContent = 'Checking…'; button.removeAttribute('title');
+        const feedback = button.closest('.hx-payment-actions')?.querySelector('[data-payment-error]'); if (feedback) feedback.textContent = '';
         try { await api('/api/store/checkouts/' + encodeURIComponent(orderId) + '/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }); await load(); }
-        catch (error) { button.disabled = false; button.textContent = 'Check failed — retry'; button.title = error.message; }
+        catch (error) { button.disabled = false; button.textContent = 'Check payment status'; button.title = error.message || ''; if (feedback) feedback.textContent = error.message || 'Could not check payment status.'; }
       }));
-    } catch (error) { box.textContent = error.message || 'Could not load orders.'; }
+    } catch (error) {
+      box.innerHTML = `<section class="hx-panel hx-load-error" role="alert"><span>${esc(error.message || 'Could not load orders.')}</span><button class="hx-button hx-secondary" type="button" data-orders-retry>Retry</button></section>`;
+      box.querySelector('[data-orders-retry]')?.addEventListener('click', load);
+    }
   }
   load();
 })();

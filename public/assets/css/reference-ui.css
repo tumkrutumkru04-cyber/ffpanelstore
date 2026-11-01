@@ -684,3 +684,131 @@ body:has(#catalog) .carousel .slide-content a.button,
 body:has(#catalog) .carousel .slide-content a.button:visited,
 body:has(#catalog) .carousel .slide-content a.button:hover,
 body:has(#catalog) .carousel .slide-content a.button:focus-visible{color:#fff!important}
+
+
+/* Reference-backed auth actions and compact customer sign-in cards. */
+.reference-header .nav,.hx-page-wrap .reference-header .nav{gap:6px!important}
+.reference-header .auth-btn-login,.reference-header .auth-btn-register{
+  display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 auto;
+  min-height:36px;padding:0 12px;border:1px solid var(--ui-border-strong);border-radius:999px;
+  color:var(--ui-text)!important;background:transparent;text-decoration:none!important;
+  font-size:10px;font-weight:750;letter-spacing:.08em;white-space:nowrap;
+  transition:transform .18s cubic-bezier(.2,.8,.2,1),background .18s,border-color .18s,color .18s;
+}
+.reference-header .auth-btn-register{
+  color:#fff!important;background:var(--ui-accent);border-color:var(--ui-accent);
+}
+.reference-header .auth-btn-login:hover,.reference-header .auth-btn-register:hover{
+  transform:translateY(-1px);border-color:var(--ui-accent);background:var(--ui-accent-soft);color:var(--ui-accent)!important;
+}
+.reference-header .auth-btn-register:hover{background:var(--ui-accent-strong);border-color:var(--ui-accent-strong);color:#fff!important}
+.reference-header .auth-btn-login:active,.reference-header .auth-btn-register:active{transform:scale(.97)}
+.reference-header .site-name-stylish small{display:none!important}
+body:has(#loginForm) .reference-header .auth-btn-login,
+body:has(#registerForm) .reference-header .auth-btn-register{
+  border-color:var(--ui-accent);background:var(--ui-accent-soft);color:var(--ui-accent)!important;
+}
+body:has(#registerForm) .reference-header .auth-btn-register{background:var(--ui-accent);color:#fff!important}
+body:has(#loginForm) .hx-page-main,body:has(#registerForm) .hx-page-main{
+  min-height:calc(100svh - 190px);display:flex;align-items:center;justify-content:center;
+}
+body:has(#loginForm) .hx-auth-panel,body:has(#registerForm) .hx-auth-panel{
+  width:min(100%,440px);margin:24px auto;padding:26px;border:1px solid var(--ui-border);
+  border-radius:18px;background:var(--ui-card);box-shadow:var(--ui-shadow);
+}
+body:has(#loginForm) .hx-auth-panel h1,body:has(#registerForm) .hx-auth-panel h1{
+  margin:0 0 18px;color:var(--ui-text);font-size:24px;font-weight:800;letter-spacing:-.035em;
+}
+body:has(#loginForm) .hx-auth-panel .hx-google,body:has(#registerForm) .hx-auth-panel .hx-google{width:100%}
+.carousel[hidden],.announcement[hidden],.hero-intro[hidden]{display:none!important}
+
+/* Match the reference's product-level offline / maintenance treatment. */
+.reference-product.is-offline{position:relative;overflow:hidden}
+.reference-product .ref-offline-overlay{
+  position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:7px;padding:12px;text-align:center;pointer-events:none;
+  background:radial-gradient(100% 90% at 50% 40%,rgba(220,38,38,.06) 0%,rgba(10,10,20,.36) 50%,rgba(10,10,20,.76) 100%);
+}
+.reference-product .ref-offline-icon-wrap{
+  position:relative;z-index:3;width:54px;height:54px;display:flex;align-items:center;justify-content:center;
+  border-radius:16px;background:rgba(239,68,68,.08);border:1.5px solid rgba(239,68,68,.4);
+  box-shadow:0 4px 14px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.03);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+}
+.reference-product .ref-offline-icon-wrap svg{width:25px;height:25px;fill:#fca5a5}
+.reference-product .ref-offline-pill{
+  position:relative;z-index:3;display:inline-flex;align-items:center;gap:6px;padding:4px 12px 4px 8px;
+  color:#fecaca;background:rgba(20,10,15,.72);border:1px solid rgba(239,68,68,.5);border-radius:999px;
+  font-size:8.5px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 2px 10px rgba(0,0,0,.35);
+}
+.reference-product .ref-pulse-dot{width:6px;height:6px;flex:0 0 6px;border-radius:50%;background:#ef4444;box-shadow:0 0 8px #ef4444;animation:ref-maintenance-pulse 1.4s ease-in-out infinite}
+@keyframes ref-maintenance-pulse{50%{opacity:.45;box-shadow:0 0 2px rgba(239,68,68,.35)}}
+.reference-product .ref-offline-headline{
+  position:relative;z-index:3;margin:0;color:#fff;font-size:16.5px;font-weight:900;letter-spacing:-.2px;line-height:1.05;
+  text-shadow:0 2px 10px rgba(0,0,0,.75);
+}
+.reference-product .ref-offline-highlight{
+  display:inline-block;background:linear-gradient(180deg,#fff 0%,#fca5a5 45%,#ef4444 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 2px 6px rgba(239,68,68,.6));
+}
+.reference-product .ref-offline-sub{
+  position:relative;z-index:3;display:inline-flex;align-items:center;gap:5px;margin:0;color:rgba(255,255,255,.78);
+  font-size:10px;font-weight:600;letter-spacing:.3px;line-height:1.2;text-shadow:0 1px 4px rgba(0,0,0,.75);
+}
+.reference-product .ref-offline-sub svg{width:10px;height:10px;flex:0 0 10px;opacity:.85}
+@media(max-width:560px){
+  .reference-header,.hx-page-wrap .reference-header{gap:5px!important;padding-right:8px!important;padding-left:8px!important}
+  .reference-header .site-name-stylish,.reference-header .brand>span{font-size:11px!important;letter-spacing:.02em!important}
+  .reference-header .nav,.hx-page-wrap .reference-header .nav{gap:4px!important}
+  .reference-header .auth-btn-login,.reference-header .auth-btn-register{min-height:32px;padding:0 8px;font-size:8px;letter-spacing:.04em}
+  .reference-header .currency-control select,.reference-header .page-currency select{height:32px!important;max-width:64px;padding:0 6px!important;font-size:10px!important}
+  .reference-header .menu-trigger,.reference-header .menu-trigger:hover,.reference-header .hx-theme-toggle{width:32px!important;min-width:32px!important;height:32px!important;min-height:32px!important}
+  body:has(#loginForm) .hx-auth-panel,body:has(#registerForm) .hx-auth-panel{width:calc(100% - 24px);margin:18px auto;padding:20px;border-radius:16px}
+}
+@media(max-width:370px){
+  .reference-header .nav,.hx-page-wrap .reference-header .nav{gap:3px!important}
+  .reference-header .auth-btn-login,.reference-header .auth-btn-register{padding:0 6px;font-size:7.5px}
+  .reference-header .currency-control select,.reference-header .page-currency select{max-width:52px;padding:0 4px!important}
+}
+@media(prefers-reduced-motion:reduce){.reference-product .ref-pulse-dot{animation:none}}
+
+.hx-site-intro{pointer-events:none!important}
+
+
+/* Reference fit: compact customer UI and responsive controls. */
+body:has(#catalog) #announcement[hidden]{display:none!important}
+.reference-product.is-offline .product-body{visibility:hidden}
+.reference-product .ref-offline-overlay{
+  background:radial-gradient(100% 90% at 50% 40%,rgba(220,38,38,.06) 0%,rgba(10,10,20,.25) 50%,rgba(10,10,20,.55) 100%);
+}
+.reference-product .ref-offline-overlay::before{
+  content:"";position:absolute;top:30%;left:50%;width:66px;height:66px;transform:translate(-50%,-50%);
+  border-radius:50%;background:radial-gradient(circle,rgba(239,68,68,.28) 0%,rgba(239,68,68,.08) 55%,rgba(239,68,68,0) 75%);pointer-events:none;z-index:0;
+}
+@media(max-width:560px){
+  .reference-header,.hx-page-wrap .reference-header{gap:5px!important;padding-right:8px!important;padding-left:8px!important}
+  .reference-header .brand,.hx-page-wrap .reference-header .brand{flex:1 1 0%;min-width:0}
+  .reference-header .nav,.hx-page-wrap .reference-header .nav{flex:0 0 auto!important;gap:3px!important}
+  .reference-header .site-name-stylish{font-size:10px!important;letter-spacing:0!important;text-overflow:clip}
+  .reference-header .auth-btn-login,.reference-header .auth-btn-register{min-height:32px!important;padding:0 5px!important;font-size:7.5px!important;letter-spacing:0!important;white-space:nowrap}
+  .reference-header .currency-control select,.reference-header .page-currency select{width:48px!important;max-width:48px!important;height:32px!important;padding:0 4px!important;font-size:9px!important}
+  .reference-header .menu-trigger,.reference-header .menu-trigger:hover,.reference-header .hx-theme-toggle{width:29px!important;min-width:29px!important;height:32px!important;min-height:32px!important;padding:0!important}
+  body:has(#loginForm) .hx-auth-panel,body:has(#registerForm) .hx-auth-panel{width:calc(100% - 24px);margin:18px auto;padding:20px;border-radius:16px}
+}
+@media(max-width:370px){
+  .reference-header,.hx-page-wrap .reference-header{
+    display:grid!important;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto;align-items:center;
+    gap:4px!important;padding:7px 9px!important;
+  }
+  .reference-header .brand,.hx-page-wrap .reference-header .brand{grid-row:1;width:100%;min-width:0;min-height:16px}
+  .reference-header .nav,.hx-page-wrap .reference-header .nav{
+    grid-row:2;width:100%;display:flex;flex:initial!important;justify-content:space-between;gap:4px!important;
+  }
+  .reference-header .site-name-stylish{font-size:10px!important}
+  .reference-header .currency-control{margin-left:0!important}
+  .reference-header .auth-btn-login,.reference-header .auth-btn-register{min-height:34px!important;padding:0 7px!important;font-size:8px!important}
+  .reference-header .currency-control select,.reference-header .page-currency select{width:52px!important;max-width:52px!important;height:34px!important;padding:0 4px!important}
+  .reference-header .menu-trigger,.reference-header .menu-trigger:hover{flex:0 0 32px!important;width:32px!important;min-width:32px!important;height:34px!important;min-height:34px!important}
+  .reference-header .hx-theme-toggle{width:32px!important;min-width:32px!important;height:34px!important;min-height:34px!important}
+}

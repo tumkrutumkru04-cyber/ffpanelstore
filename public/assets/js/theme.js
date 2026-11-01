@@ -14,16 +14,16 @@
   setTheme(getTheme());
 
   const bindSiteIntro=()=>{
-    if(location.pathname.startsWith('/admin')||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    if(location.pathname!=='/'||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
     let played=false;
     try{played=sessionStorage.getItem('hex_shop_intro_played')==='1'}catch{}
     if(played)return;
     try{sessionStorage.setItem('hex_shop_intro_played','1')}catch{}
     const intro=document.createElement('div');intro.className='hx-site-intro';intro.setAttribute('aria-hidden','true');
-    intro.innerHTML='<div class="hx-site-intro-content"><h1>HEX CHEATS SHOP</h1><div class="hx-site-intro-sub"><span></span><p>OFFICIAL DIGITAL STORE</p><span></span></div></div>';
+    intro.innerHTML='<div class="hx-site-intro-content"><h1>HEX CHEATS SHOP</h1></div>';
     document.body.append(intro);
-    window.setTimeout(()=>intro.classList.add('is-hidden'),1500);
-    window.setTimeout(()=>intro.remove(),2050);
+    window.setTimeout(()=>intro.classList.add('is-hidden'),400);
+    window.setTimeout(()=>intro.remove(),1000);
   };
 
   const addThemeButton=()=>{
