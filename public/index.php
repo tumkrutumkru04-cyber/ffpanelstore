@@ -4,7 +4,7 @@ declare(strict_types=1);
 $requestPath = rawurldecode((string) (parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/'));
 $assetPath = __DIR__ . $requestPath;
 if ($requestPath !== '/' && !str_contains($requestPath, '..') && is_file($assetPath)
-    && in_array(strtolower(pathinfo($assetPath, PATHINFO_EXTENSION)), ['js', 'css', 'png', 'jpg', 'jpeg', 'webp', 'svg', 'ico'], true)) {
+    && in_array(strtolower(pathinfo($assetPath, PATHINFO_EXTENSION)), ['js', 'css', 'png', 'jpg', 'jpeg', 'webp', 'svg', 'ico', 'woff2'], true)) {
     return false;
 }
 
