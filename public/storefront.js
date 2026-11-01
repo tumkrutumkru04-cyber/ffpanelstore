@@ -118,6 +118,16 @@ function renderFilterGroups() {
     button.setAttribute('aria-pressed', String(active));
   });
 }
+function bindSearchControls() {
+  const input=$('search'),box=input?.closest('.searchbox');
+  if(!input||!box||$('searchClear'))return;
+  const clear=document.createElement('button');
+  clear.type='button';clear.id='searchClear';clear.className='search-clear';clear.textContent='×';
+  clear.setAttribute('aria-label','Clear search');clear.hidden=!input.value;box.append(clear);
+  const reset=()=>{input.value='';renderProducts();input.focus()};
+  clear.addEventListener('click',reset);
+  input.addEventListener('keydown',event=>{if(event.key==='Escape'&&input.value){event.preventDefault();reset()}});
+}
 function platformBadge(product) {
   const access = String(product.access_mode || '').trim().toLowerCase().replace(/[- ]/g, '_');
   const searchable = [product.platform, product.category, product.name].filter(Boolean).join(' ').toLowerCase();
@@ -131,6 +141,7 @@ function platformBadge(product) {
 }
 function renderProducts() {
   const query = $('search').value.trim().toLowerCase();
+  const searchClear=$('searchClear');if(searchClear)searchClear.hidden=!query;
   const shown = products.filter(p => {
     const searchable = [p.name,p.category,p.platform,p.access_mode,p.description,...(p.features||[])].join(' ').toLowerCase();
     const access = String(p.access_mode || 'all').toLowerCase();
@@ -181,7 +192,7 @@ async function loadHomepage() {
         : 'Binance Pay will appear here after the shop administrator uploads a Binance QR image.';
     }
     const fallback=[
-      ['Featured line-up','Explore products for your platform and choose the access period that works for you.'],
+      [data.hero_title||'Featured line-up',data.hero_subtitle||'Explore products for your platform and choose the access period that works for you.'],
       ['Choose your access','Compare product details, demo videos, download links, and durations before checkout.'],
       ['Secure checkout','Track payments, wallet balance, and delivery keys together in your shop profile.']
     ];
@@ -193,13 +204,15 @@ async function loadHomepage() {
       return `<article class="slide ${i===0?'active':''}">${b.image_url?`<img class="slide-image" src="${escapeHtml(b.image_url)}" alt="" onerror="this.remove()">`:''}<div class="slide-shade"></div><div class="slide-content"><div class="slide-kicker">HEX CHEATS SHOP · PROMOTION ${i+1}</div><h2>${escapeHtml(title)}</h2><p>${escapeHtml(subtitle)}</p><a class="button" href="${escapeHtml(url)}" ${external?'target="_blank" rel="noopener noreferrer"':''}>${escapeHtml(b.cta_label||'Browse products')}</a></div></article>`;
     }).join('');
     $('heroDots').innerHTML=banners.map((_,i)=>`<button class="dot ${i===0?'active':''}" type="button" aria-label="Show banner ${i+1}" data-slide="${i}"></button>`).join('');
-    activeSlide=0;clearInterval(carouselTimer);carouselTimer=setInterval(()=>goSlide((activeSlide+1)%3),6500);
+    goSlide(0);clearInterval(carouselTimer);carouselTimer=setInterval(()=>goSlide((activeSlide+1)%3),6500);
   } catch { console.warn('Homepage settings could not be loaded.'); }
 }
 function goSlide(index) {
-  const slides=[...document.querySelectorAll('#heroSlides .slide')],dots=[...document.querySelectorAll('#heroDots .dot')];
+  const track=$('heroSlides'),slides=[...document.querySelectorAll('#heroSlides .slide')],dots=[...document.querySelectorAll('#heroDots .dot')];
   if(!slides.length)return;activeSlide=(index+slides.length)%slides.length;
-  slides.forEach((el,i)=>el.classList.toggle('active',i===activeSlide));dots.forEach((el,i)=>el.classList.toggle('active',i===activeSlide));
+  if(track)track.style.transform=`translate3d(${-activeSlide*100}%,0,0)`;
+  slides.forEach((el,i)=>{const active=i===activeSlide;el.classList.toggle('active',active);el.setAttribute('aria-hidden',String(!active))});
+  dots.forEach((el,i)=>{const active=i===activeSlide;el.classList.toggle('active',active);el.setAttribute('aria-pressed',String(active))});
 }
 async function loadProducts() {
   try {
@@ -607,6 +620,7 @@ function setCurrency(value) {
 $('loginTab').addEventListener('click', () => setAuthMode('login'));
 $('registerTab').addEventListener('click', () => setAuthMode('register'));
 $('authForm').addEventListener('submit', authSubmit);
+bindSearchControls();
 $('search').addEventListener('input', renderProducts);
 $('currencySelect').addEventListener('change', event => setCurrency(event.target.value));
 $('heroPrev').addEventListener('click',()=>{clearInterval(carouselTimer);goSlide(activeSlide-1);carouselTimer=setInterval(()=>goSlide((activeSlide+1)%3),6500)});

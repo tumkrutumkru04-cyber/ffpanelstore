@@ -13,29 +13,77 @@
   };
   setTheme(getTheme());
 
+  const bindSiteIntro=()=>{
+    if(location.pathname.startsWith('/admin')||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    let played=false;
+    try{played=sessionStorage.getItem('hex_shop_intro_played')==='1'}catch{}
+    if(played)return;
+    try{sessionStorage.setItem('hex_shop_intro_played','1')}catch{}
+    const intro=document.createElement('div');intro.className='hx-site-intro';intro.setAttribute('aria-hidden','true');
+    intro.innerHTML='<div class="hx-site-intro-content"><h1>HEX CHEATS SHOP</h1><div class="hx-site-intro-sub"><span></span><p>OFFICIAL DIGITAL STORE</p><span></span></div></div>';
+    document.body.append(intro);
+    window.setTimeout(()=>intro.classList.add('is-hidden'),1500);
+    window.setTimeout(()=>intro.remove(),2050);
+  };
+
   const addThemeButton=()=>{
-    if(document.querySelector('.hx-theme-toggle'))return;
+    if(location.pathname.startsWith('/admin')||document.querySelector('.hx-theme-toggle'))return;
     const button=document.createElement('button');
     button.type='button';button.className='hx-theme-toggle';
     button.addEventListener('click',()=>setTheme(getTheme()==='dark'?'light':'dark'));
-    const target=document.querySelector('.shop-quick-menu')||document.querySelector('.top .nav,.top .actions,.top');
-    if(target)target.append(button);else{button.style.cssText='position:fixed;right:12px;top:12px';document.body.append(button)}
+    const target=document.querySelector('.reference-header .nav,.top .nav,.top .actions');
+    if(target){const anchor=target.querySelector('.page-currency,.currency-control,.menu-trigger');if(anchor&&anchor.parentElement===target)target.insertBefore(button,anchor);else target.append(button)}
+    else if(document.querySelector('.shop-quick-menu'))document.querySelector('.shop-quick-menu').append(button);
+    else{button.style.cssText='position:fixed;right:12px;top:12px';document.body.append(button)}
     setTheme(getTheme());
   };
 
   const navItems=[['/','home','Home'],['/add-funds','plus','Add Fund'],['/wallet','wallet','Wallet'],['/orders','receipt','Orders'],['/keys','key','My Keys'],['/account','user','Account']];
+  const moveActivePill=nav=>{
+    const active=nav?.querySelector('a[aria-current="page"]'),pill=nav?.querySelector('.hx-nav-active-pill');
+    if(!active||!pill)return;
+    pill.style.width=`${active.offsetWidth}px`;pill.style.height=`${active.offsetHeight}px`;
+    pill.style.transform=`translate3d(${active.offsetLeft}px,${active.offsetTop}px,0)`;
+  };
   const addBottomNav=()=>{
     const path=location.pathname;
     const activePath=path.startsWith('/pay/')?'/add-funds':path;
     if(path.startsWith('/admin')||document.querySelector('.hx-bottom-nav'))return;
     const nav=document.createElement('nav');nav.className='hx-bottom-nav';nav.setAttribute('aria-label','Main navigation');
+    const pill=document.createElement('span');pill.className='hx-nav-active-pill';pill.setAttribute('aria-hidden','true');nav.append(pill);
     navItems.forEach(([href,icon,label])=>{
       const link=document.createElement('a');link.href=href;
       link.innerHTML='<span class="hx-nav-icon" aria-hidden="true"><svg class="hx-icon"><use href="/assets/icons.svg#'+icon+'"></use></svg></span><span>'+label+'</span>';
       const active=href==='/'?activePath==='/'||activePath.startsWith('/product/'):activePath===href||activePath.startsWith(href+'/');
       if(active)link.setAttribute('aria-current','page');nav.append(link);
     });
+    nav.addEventListener('click',event=>{
+      if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+      const link=event.target.closest('a[href]');if(!link)return;
+      nav.querySelectorAll('a[aria-current="page"]').forEach(item=>item.removeAttribute('aria-current'));
+      link.setAttribute('aria-current','page');requestAnimationFrame(()=>moveActivePill(nav));
+    });
     document.body.append(nav);
+    requestAnimationFrame(()=>moveActivePill(nav));
+    window.addEventListener('resize',()=>requestAnimationFrame(()=>moveActivePill(nav)),{passive:true});
+  };
+
+  const bindBottomNavMotion=()=>{
+    const nav=document.querySelector('.hx-bottom-nav');if(!nav)return;
+    let lastY=window.scrollY,ticking=false;
+    const reveal=()=>nav.classList.remove('hidden-down');
+    nav.addEventListener('pointerdown',reveal,{passive:true});
+    document.addEventListener('focusin',event=>{if(event.target.matches('input,textarea,select,[contenteditable="true"]'))reveal()});
+    window.addEventListener('scroll',()=>{
+      if(ticking)return;ticking=true;
+      requestAnimationFrame(()=>{
+        ticking=false;const y=window.scrollY,delta=y-lastY,focused=document.activeElement?.matches('input,textarea,select,[contenteditable="true"]');
+        document.querySelector('.reference-header')?.classList.toggle('is-scrolled',y>4);
+        if(document.body.classList.contains('menu-open')||focused||y<80||delta<-5)reveal();
+        else if(delta>5)nav.classList.add('hidden-down');
+        lastY=y;
+      });
+    },{passive:true});
   };
 
   const bindMenu=()=>{
@@ -43,9 +91,9 @@
     if(!toggle||!menu||!backdrop)return;
     if(menu.parentElement!==document.body){document.body.append(backdrop,menu)}
     const signIn=document.getElementById('menuSignIn'),signOut=document.getElementById('menuSignOut');
-    const close=()=>{menu.classList.add('hidden');backdrop.classList.add('hidden');menu.setAttribute('aria-hidden','true');backdrop.setAttribute('aria-hidden','true');toggle.setAttribute('aria-expanded','false');toggle.classList.remove('is-open');document.body.classList.remove('menu-open')};
+    const close=()=>{menu.classList.add('hidden');backdrop.classList.add('hidden');menu.setAttribute('aria-hidden','true');backdrop.setAttribute('aria-hidden','true');toggle.setAttribute('aria-expanded','false');toggle.classList.remove('is-open');document.body.classList.remove('menu-open');document.querySelector('.hx-bottom-nav')?.classList.remove('hidden-down')};
     const open=async()=>{
-      menu.classList.remove('hidden');backdrop.classList.remove('hidden');menu.setAttribute('aria-hidden','false');backdrop.setAttribute('aria-hidden','false');toggle.setAttribute('aria-expanded','true');toggle.classList.add('is-open');document.body.classList.add('menu-open');
+      menu.classList.remove('hidden');backdrop.classList.remove('hidden');menu.setAttribute('aria-hidden','false');backdrop.setAttribute('aria-hidden','false');toggle.setAttribute('aria-expanded','true');toggle.classList.add('is-open');document.body.classList.add('menu-open');document.querySelector('.hx-bottom-nav')?.classList.remove('hidden-down');
       try{const response=await fetch('/api/store/session',{credentials:'same-origin'}),data=await response.json();const name=document.getElementById('menuProfileName'),email=document.getElementById('menuProfileEmail');if(data.authenticated){name.textContent=data.account?.display_name||'Shop customer';email.textContent=data.account?.email||'';signIn?.classList.add('hidden');signOut?.classList.remove('hidden')}else{name.textContent='Your shop account';email.textContent='Sign in to see your account';if(signIn){signIn.classList.remove('hidden');signIn.href='/login?next='+encodeURIComponent(location.pathname+location.search)}signOut?.classList.add('hidden')}}catch{}
     };
     toggle.addEventListener('click',event=>{event.stopPropagation();menu.classList.contains('hidden')?open():close()});
@@ -79,6 +127,7 @@
         const url=new URL(link.href,location.href),active=url.pathname==='/'?path==='/'||path.startsWith('/product/'):path===url.pathname||path.startsWith(url.pathname+'/');
         if(active)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');
       });
+      requestAnimationFrame(()=>moveActivePill(document.querySelector('.hx-bottom-nav')));
     };
     const activateScripts=async root=>{
       for(const oldScript of [...root.querySelectorAll('script')]){
@@ -199,6 +248,6 @@
     },{passive:true});
   };
 
-  const init=()=>{addThemeButton();addBottomNav();bindMenu();bindCurrency();bindPageMotion();bindCardTilt()};
+  const init=()=>{bindSiteIntro();addThemeButton();addBottomNav();bindBottomNavMotion();bindMenu();bindCurrency();bindPageMotion();bindCardTilt()};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
