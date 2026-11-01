@@ -166,3 +166,9 @@ body .hx-page-wrap .reference-header .page-currency select,body .hx-page-wrap .r
 body:has(#catalog) .reference-header .site-name-stylish{width:auto!important;padding:0!important;border-radius:0!important;background:transparent!important;color:var(--hx-ink)!important;text-align:left!important}
 body:has(#catalog) .reference-header .site-name-stylish small{display:block!important;color:var(--hx-muted)!important}
 body:has(#catalog) .reference-header .currency-control select{border-color:var(--hx-line)!important;background:var(--hx-surface)!important;color:var(--hx-ink)!important}
+
+/* Interaction polish: action links read as controls; outgoing route content doesn't linger dimmed. */
+a.button,.hx-button,.hx-bottom-nav a,.reference-header a,.shop-menu-links a,.shop-menu-signin{text-decoration:none!important}
+.hx-page-main.route-leaving{opacity:0!important;transform:translateY(-3px);transition:opacity .08s ease,transform .08s ease;pointer-events:none}
+.hx-page-main.route-entering{animation:hex-content-in .16s cubic-bezier(.2,.8,.2,1) both}
+@media(prefers-reduced-motion:reduce){.hx-page-main.route-leaving,.hx-page-main.route-entering{animation:none!important;transition:none!important;transform:none!important;opacity:1!important}}

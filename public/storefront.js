@@ -172,10 +172,14 @@ async function loadHomepage() {
     $('announcement').textContent=data.announcement||'';
     document.title=`${shopName} | Digital products`;
     const binanceReady = Boolean(data.binance?.available);
-    $('binanceTopupButton').disabled = !binanceReady;
-    $('binanceAvailability').textContent = binanceReady
-      ? 'Binance Pay is available. Payments require admin verification before INR wallet credit.'
-      : 'Binance Pay will appear here after the shop administrator uploads a Binance QR image.';
+    const binanceTopupButton = $('binanceTopupButton');
+    const binanceAvailability = $('binanceAvailability');
+    if (binanceTopupButton) binanceTopupButton.disabled = !binanceReady;
+    if (binanceAvailability) {
+      binanceAvailability.textContent = binanceReady
+        ? 'Binance Pay is available. Payments require admin verification before INR wallet credit.'
+        : 'Binance Pay will appear here after the shop administrator uploads a Binance QR image.';
+    }
     const fallback=[
       ['Featured line-up','Explore products for your platform and choose the access period that works for you.'],
       ['Choose your access','Compare product details, demo videos, download links, and durations before checkout.'],
